@@ -12,11 +12,10 @@ export const TicketSection: React.FC<TicketSectionProps> = ({ tickets, onSelectT
   const [filter, setFilter] = useState<string>('all');
 
   const filterTabs = [
-    { id: 'all', label: 'Semua Tiket' },
+    { id: 'all', label: 'Semua Pilihan' },
+    { id: 'paket-wisata', label: 'Paket Komplit' },
     { id: 'homestay', label: 'Homestay AC' },
-    { id: 'paket-wisata', label: 'Paket Komplit 2D1N' },
-    { id: 'speedboat', label: 'Speedboat Marina' },
-    { id: 'ferry', label: 'Kapal Muara Angke' }
+    { id: 'aktivitas', label: 'Aktivitas & Sewa' }
   ];
 
   const filtered = tickets.filter((t) => {
@@ -33,10 +32,10 @@ export const TicketSection: React.FC<TicketSectionProps> = ({ tickets, onSelectT
             Tarif & Reservasi Resmi
           </span>
           <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            Tiket Kapal, Homestay, & Paket Wisata
+            Paket Wisata, Homestay, & Aktivitas
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-            Dapatkan tiket penyeberangan resmi dan penginapan homestay AC dengan konfirmasi instan ke email Anda.
+            Dapatkan paket liburan komplit, penginapan homestay AC, dan sewa aktivitas dengan konfirmasi instan.
           </p>
 
           {/* Segmented Filter */}

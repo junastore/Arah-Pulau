@@ -1,6 +1,8 @@
-import { BookingTransaction } from '../types';
+import { BookingTransaction, TicketOption } from '../types';
+import { TIDUNG_TICKETS } from '../data/tidungData';
 
 const STORAGE_KEY = 'tidungtrip_bookings_v1';
+const TICKET_CATALOG_STORAGE_KEY = 'tidungtrip_ticket_catalog_v1';
 
 export const formatRupiah = (amount: number): string => {
   return new Intl.NumberFormat('id-ID', {
@@ -100,7 +102,66 @@ export const updateBookingReceipt = (
   return updatedBooking;
 };
 
+export const updateBookingStatus = (
+  bookingId: string,
+  newStatus: 'PAID' | 'CONFIRMED'
+): BookingTransaction | null => {
+  const current = getSavedBookings();
+  const targetIndex = current.findIndex((b) => b.id === bookingId);
+  if (targetIndex === -1) return null;
+
+  current[targetIndex] = {
+    ...current[targetIndex],
+    status: newStatus
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+  return current[targetIndex];
+};
+
 export const generateBookingId = (): string => {
   const randomNum = Math.floor(10000 + Math.random() * 90000);
   return `TID-${randomNum}`;
+};
+
+export const deleteBooking = (bookingId: string): boolean => {
+  const current = getSavedBookings();
+  const updated = current.filter((b) => b.id !== bookingId);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  return true;
+};
+
+export const getSavedTicketCatalog = (): TicketOption[] => {
+  try {
+    const raw = localStorage.getItem(TICKET_CATALOG_STORAGE_KEY);
+    if (!raw) {
+      return TIDUNG_TICKETS;
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return TIDUNG_TICKETS;
+  } catch {
+    return TIDUNG_TICKETS;
+  }
+};
+
+export const saveTicketCatalog = (tickets: TicketOption[]): void => {
+  localStorage.setItem(TICKET_CATALOG_STORAGE_KEY, JSON.stringify(tickets));
+};
+
+export const deleteTicketFromCatalog = (ticketId: string): TicketOption[] => {
+  const current = getSavedTicketCatalog();
+  const updated = current.filter((t) => t.id !== ticketId);
+  saveTicketCatalog(updated);
+  return updated;
+};
+
+export const resetTicketCatalog = (): TicketOption[] => {
+  try {
+    localStorage.removeItem(TICKET_CATALOG_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+  return TIDUNG_TICKETS;
 };

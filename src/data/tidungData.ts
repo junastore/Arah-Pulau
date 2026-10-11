@@ -106,56 +106,66 @@ export const TIDUNG_DESTINATIONS: DestinationItem[] = [
 
 export const TIDUNG_TICKETS: TicketOption[] = [
   {
-    id: 'speedboat-marina-pp',
-    name: 'Tiket Speedboat Marina Ancol (PP)',
-    category: 'speedboat',
-    categoryLabel: 'Transportasi Cepat',
-    departurePort: 'Marina Ancol (Dermaga 16)',
-    durationText: '1.5 Jam Perjalanan',
-    price: 360000,
-    priceUnitText: '/ orang (PP)',
+    id: 'paket-2d1n-premium',
+    name: '2D1N Tidung Premium',
+    category: 'paket-wisata',
+    categoryLabel: 'Paket Populer',
+    departurePort: 'Bebas Pilih',
+    durationText: '2 Hari 1 Malam',
+    price: 450000,
+    priceUnitText: '/ orang',
     popular: true,
+    rating: 4.8,
+    imageUrl: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80',
     features: [
-      'Kapal Cepat Full AC & Kursi Nyaman',
-      'Waktu tempuh singkat 90 menit dari Marina',
-      'Termasuk tiket masuk Dermaga Marina Ancol',
-      'Asuransi keselamatan perjalanan resmi'
+      'Kapal Penyeberangan PP Cepat & Nyaman',
+      'Homestay AC Pesisir + WiFi & TV',
+      'Makan 3x Prasmanan + Welcome Drink',
+      'Snorkeling Karang Beras Nemo + Foto Underwater',
+      'Sepeda Ontel Bebas Keliling Pulau Tidung'
     ],
-    meetingPoint: 'Dermaga 16 Marina Ancol, Jakarta Utara (Kumpul 07:15 WIB)',
-    scheduleTime: 'Setiap Hari 08:00 WIB (Kembali 15:00 WIB)',
-    description: 'Pilihan tercepat dan paling nyaman menuju Pulau Tidung dari Jakarta Pusat/Utara.'
+    meetingPoint: 'Pelabuhan Keberangkatan Pilihan (Marina / Muara Angke)',
+    scheduleTime: 'Setiap Hari (07:30 WIB - 15:00 WIB)',
+    description: 'Paket liburan terfavorit 2 hari 1 malam lengkap dengan penginapan AC, snorkeling nemo, sepeda santai, dan BBQ malam.'
   },
   {
-    id: 'ferry-muara-angke-pp',
-    name: 'Tiket Kapal Muara Angke (PP)',
-    category: 'ferry',
-    categoryLabel: 'Transportasi Hemat',
-    departurePort: 'Muara Angke (Kali Adem)',
-    durationText: '2.5 Jam Perjalanan',
-    price: 180000,
-    priceUnitText: '/ orang (PP)',
+    id: 'paket-3d2n-explorer',
+    name: '3D2N Tidung Explorer',
+    category: 'paket-wisata',
+    categoryLabel: 'Paket Populer',
+    departurePort: 'Bebas Pilih',
+    durationText: '3 Hari 2 Malam',
+    price: 750000,
+    priceUnitText: '/ orang',
+    popular: true,
+    rating: 4.9,
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
     features: [
-      'Kapal Kayu Motor Tradisional / Feri Dishub',
-      'Pilihan paling terjangkau & ekonomis',
-      'Pemandangan laut lepas terbuka',
-      'Termasuk asuransi keselamatan penyeberangan'
+      'Tiket Kapal Speedboat PP Marina Ancol',
+      'Penginapan Homestay AC VIP Pesisir 2 Malam',
+      'Makan 6x Lengkap + Pesta BBQ Spesial Seafood',
+      'Tur Eksplorasi Jembatan Cinta, Museum Paus & Penyu',
+      'Snorkeling Karang Nemo & Pulau Payung',
+      'Dokumentasi GoPro Underwater HD Free'
     ],
-    meetingPoint: 'Pelabuhan Kali Adem, Muara Angke, Jakarta Utara (Kumpul 06:30 WIB)',
-    scheduleTime: 'Setiap Hari 07:30 WIB (Kembali 13:00 WIB)',
-    description: 'Pilihan ekonomis berangkat dari pelabuhan Kali Adem Muara Angke.'
+    meetingPoint: 'Dermaga 16 Marina Ancol / Muara Angke',
+    scheduleTime: 'Setiap Hari (07:30 WIB s/d Hari ke-3)',
+    description: 'Pengalaman liburan eksklusif 3 hari 2 malam menjelajah seluruh keindahan Pulau Tidung Besar dan Tidung Kecil.'
   },
   {
     id: 'homestay-ac-pesisir',
-    name: 'Sewa Homestay AC Tidung (Per Malam)',
+    name: 'Homestay AC Tidung Pesisir',
     category: 'homestay',
     categoryLabel: 'Penginapan Pesisir',
     departurePort: 'Pulau Tidung',
     durationText: '1 Malam (Check-in 11:00)',
     price: 350000,
-    priceUnitText: '/ unit kamar / malam',
+    priceUnitText: '/ malam',
     popular: true,
+    rating: 4.85,
+    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
     features: [
-      'Kamar tidur Full AC dingin & ranjang queen bed',
+      'Kamar tidur Full AC dingin & kasur empuk',
       'Kamar mandi dalam bersih + perlengkapan mandi',
       'Fasilitas TV, WiFi kencang, dispenser air mineral',
       'Lokasi dekat pantai barat & pusat kuliner pulau'
@@ -164,44 +174,27 @@ export const TIDUNG_TICKETS: TicketOption[] = [
     scheduleTime: 'Check-in 11:00 WIB, Check-out 10:00 WIB',
     description: 'Penginapan homestay nyaman dan bersih untuk istirahat tenang di Pulau Tidung.'
   },
-  {
-    id: 'paket-2d1n-komplit',
-    name: 'Paket Komplit Pulau Tidung 2D1N (All-In)',
-    category: 'paket-wisata',
-    categoryLabel: 'Paket Terlaris All-In',
-    departurePort: 'Bebas Pilih',
-    durationText: '2 Hari 1 Malam',
-    price: 490000,
-    priceUnitText: '/ orang (Min. 2 Orang)',
-    features: [
-      'Tiket kapal penyeberangan PP (Muara Angke/Marina)',
-      'Homestay AC Nyaman (Dekat Pantai & WiFi)',
-      'Makan 3x Prasmanan + Pesta BBQ Ikan Bakar Malam',
-      'Snorkeling Nemo Karang Beras + Foto Underwater',
-      'Sewa Sepeda Ontel Bebas Keliling Pulau'
-    ],
-    meetingPoint: 'Pelabuhan Keberangkatan pilihan Anda & Disambut di Dermaga Tidung',
-    scheduleTime: 'Hari 1 (07:30 WIB) s/d Hari 2 (15:00 WIB)',
-    description: 'Paket liburan tanpa ribet mencakup kapal, homestay AC, snorkeling nemo, sepeda, dan BBQ.'
-  },
+
   {
     id: 'rental-sepeda-ontel',
-    name: 'Sewa Sepeda Ontel Keliling Pulau',
-    category: 'sewa',
-    categoryLabel: 'Transportasi Pulau',
+    name: 'Sewa Sepeda Ontel & Snorkeling',
+    category: 'aktivitas',
+    categoryLabel: 'Aktivitas Pulau',
     departurePort: 'Pulau Tidung',
     durationText: 'Sewa Bebas (24 Jam)',
-    price: 35000,
-    priceUnitText: '/ sepeda / hari',
+    price: 45000,
+    priceUnitText: '/ orang / hari',
+    rating: 4.8,
+    imageUrl: 'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?auto=format&fit=crop&w=800&q=80',
     features: [
-      'Sepeda ontel dengan keranjang depan & boncengan',
-      'Bebas keliling Tidung Besar & Tidung Kecil',
-      'Kondisi prima, rem pakem, sadel empuk',
-      'Gratis servis/ganti unit jika ada kendala'
+      'Sepeda ontel nyaman berkeranjang',
+      'Bebas melintasi Jembatan Cinta ke Tidung Kecil',
+      'Termasuk pelampung & masker snorkel',
+      'Pemandu lokal ramah di spot Jembatan Cinta'
     ],
     meetingPoint: 'Pusat Rental Dermaga Pulau Tidung',
     scheduleTime: 'Bisa diambil kapan saja setiba di pulau',
-    description: 'Cara santai menikmati angin laut melintasi Jembatan Cinta dan jalan asri pulau.'
+    description: 'Cara santai menikmati angin laut melintasi Jembatan Cinta dan spot snorkeling nemo.'
   }
 ];
 

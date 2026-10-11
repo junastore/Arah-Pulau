@@ -13,7 +13,6 @@ import {
   QrCode,
   Building,
   ShieldCheck,
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
@@ -23,7 +22,10 @@ import {
   Check,
   Clock,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  CreditCard,
+  Lock,
+  FileText
 } from 'lucide-react';
 import { QrisPaymentCard } from './QrisPaymentCard';
 import { ReceiptUploadZone, ReceiptData } from './ReceiptUploadZone';
@@ -54,11 +56,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   );
   const [passengers, setPassengers] = useState<number>(initialPassengers || 2);
 
-  // Customer Contact Info
-  const [fullName, setFullName] = useState<string>('Junaedi');
-  const [email, setEmail] = useState<string>('bangjuna876@gmail.com');
-  const [phone, setPhone] = useState<string>('081289998438');
+  // Mandatory Customer Biodata
+  const [fullName, setFullName] = useState<string>('');
+  const [idCardNumber, setIdCardNumber] = useState<string>('');
+  const [gender, setGender] = useState<'Laki-laki' | 'Perempuan' | ''>('');
+  const [phone, setPhone] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [city, setCity] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+
+  // Form Field Validation Errors
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Payment State
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'va'>('qris');
@@ -136,19 +144,61 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     setTimeout(() => setCopiedAmount(false), 2000);
   };
 
+  // Quick fill helper for convenience testing
+  const handleFillDemoData = () => {
+    setFullName('Junaedi Rahman');
+    setIdCardNumber('3175082104900001');
+    setGender('Laki-laki');
+    setEmail('bangjuna876@gmail.com');
+    setPhone('081289998438');
+    setCity('Jakarta Timur');
+    setNotes('Mohon homestay yang dekat dengan pantai barat dan sunrise');
+    setFieldErrors({});
+    setValidationError(null);
+  };
+
   const validateForm = (): boolean => {
-    if (!fullName.trim()) {
-      setValidationError('Mohon isi nama lengkap pemesan sesuai identitas.');
+    const errs: Record<string, string> = {};
+
+    if (!fullName.trim() || fullName.trim().length < 3) {
+      errs.fullName = 'Nama lengkap wajib diisi minimal 3 huruf sesuai KTP/Paspor.';
+    }
+
+    const cleanId = idCardNumber.trim().replace(/\s/g, '');
+    if (!cleanId || cleanId.length < 6) {
+      errs.idCardNumber = 'Nomor NIK / KTP / Paspor wajib diisi (minimal 6 digit) untuk asuransi dan manifes kapal.';
+    }
+
+    if (!gender) {
+      errs.gender = 'Pilih jenis kelamin untuk kelengkapan manifes penumpang.';
+    }
+
+    const cleanPhone = phone.trim().replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 9) {
+      errs.phone = 'Nomor WhatsApp / HP wajib aktif (minimal 9 digit) untuk konfirmasi tiket & pemandu.';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      errs.email = 'Alamat email wajib diisi dengan format valid untuk pengiriman E-Tiket resmi.';
+    }
+
+    if (!city.trim() || city.trim().length < 2) {
+      errs.city = 'Kota / domisili asal wisatawan wajib diisi.';
+    }
+
+    if (!departureDate) {
+      errs.departureDate = 'Tanggal keberangkatan wajib ditentukan.';
+    }
+
+    setFieldErrors(errs);
+
+    if (Object.keys(errs).length > 0) {
+      const firstErrMsg = Object.values(errs)[0];
+      setValidationError(`Biodata belum lengkap! ${firstErrMsg}`);
       return false;
     }
-    if (!email.trim() || !email.includes('@')) {
-      setValidationError('Mohon masukkan alamat email yang valid untuk pengiriman e-tiket.');
-      return false;
-    }
-    if (!phone.trim() || phone.trim().length < 8) {
-      setValidationError('Mohon masukkan nomor WhatsApp yang aktif.');
-      return false;
-    }
+
     setValidationError(null);
     return true;
   };
@@ -160,6 +210,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   };
 
   const handleFinalizeBooking = () => {
+    if (!receipt) {
+      setValidationError('⚠️ Pembayaran Wajib Dilakukan! Silakan lakukan pembayaran dan lampirkan foto/screenshot bukti transaksi yang sah sebelum menerbitkan E-Tiket.');
+      return;
+    }
+
     setIsProcessing(true);
 
     setTimeout(() => {
@@ -181,6 +236,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           fullName,
           email,
           phone,
+          idCardNumber,
+          gender: gender as 'Laki-laki' | 'Perempuan',
+          city,
           notes
         },
         paymentMethod:
@@ -194,9 +252,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         qrCodeData: `${bookingId}-${fullName.toUpperCase()}-TIDUNG-${passengers}PAX`,
         tourGuideName: 'Kang Syarif (Pemandu Tidung)',
         tourGuidePhone: '+62 812-8999-8438',
-        receiptImage: receipt?.dataUrl,
-        receiptFileName: receipt?.fileName,
-        receiptUploadedAt: receipt ? new Date().toISOString() : undefined
+        receiptImage: receipt.dataUrl,
+        receiptFileName: receipt.fileName,
+        receiptUploadedAt: new Date().toISOString()
       };
 
       saveBooking(newBooking);
@@ -204,6 +262,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       onBookingSuccess(newBooking);
     }, 900);
   };
+
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
@@ -291,6 +350,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             /* STEP 1: FORM DETAILS */
             /* ========================================================== */
             <form onSubmit={handleProceedToPayment} className="space-y-5">
+              {/* Notice: No account needed for tourists */}
+              <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-3 flex items-center gap-2.5 text-xs text-emerald-900 shadow-2xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>Pemesanan Langsung Tanpa Perlu Buat Akun</strong> · Cukup lengkapi nama pemesan & WhatsApp, e-tiket resmi otomatis dikirim ke email.
+                </span>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6">
                 {/* Form Inputs (7 Cols) */}
                 <div className="md:col-span-7 space-y-4">
@@ -357,77 +424,287 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     </div>
                   </div>
 
-                  {/* 3. Kontak Pemesan */}
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                      3. Data Pemesan & Kontak
-                    </label>
+                  {/* 3. Biodata Pemesan & Manifes Wisatawan */}
+                  <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-900 uppercase tracking-wide">
+                          3. Biodata Pemesan & Manifes Wisatawan
+                        </label>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Semua data bertanda <span className="text-rose-600 font-bold">*</span> wajib diisi untuk asuransi dan manifes pelabuhan syahbandar.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleFillDemoData}
+                        className="px-2.5 py-1 text-[11px] font-bold text-cyan-800 bg-cyan-50 hover:bg-cyan-100 rounded-lg border border-cyan-200 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="Isi form secara otomatis untuk uji coba cepat"
+                      >
+                        <FileText className="w-3 h-3 text-cyan-600" />
+                        <span>Isi Cepat Data Contoh</span>
+                      </button>
+                    </div>
 
+                    {/* Nama Lengkap */}
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Nama Lengkap (Sesuai KTP/Paspor)
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Nama Lengkap (Sesuai KTP / Paspor) <span className="text-rose-600 font-bold">*</span></span>
+                        <span className="text-[10px] text-slate-400 font-normal">Wajib diisi</span>
                       </label>
                       <div className="relative flex items-center">
                         <User className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
                         <input
                           type="text"
                           required
-                          placeholder="Masukkan nama lengkap"
+                          placeholder="Masukkan nama lengkap pemesan"
                           value={fullName}
                           onChange={(e) => {
                             setFullName(e.target.value);
+                            if (fieldErrors.fullName) {
+                              const copy = { ...fieldErrors };
+                              delete copy.fullName;
+                              setFieldErrors(copy);
+                            }
                             if (validationError) setValidationError(null);
                           }}
-                          className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-cyan-500 outline-none"
+                          className={`w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border outline-none transition-colors ${
+                            fieldErrors.fullName
+                              ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 ring-1 ring-rose-300'
+                              : 'border-slate-300 focus:border-cyan-500 bg-white'
+                          }`}
                         />
+                      </div>
+                      {fieldErrors.fullName && (
+                        <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.fullName}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Nomor NIK / KTP / Paspor & Jenis Kelamin */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                          <span>Nomor NIK / KTP / Paspor <span className="text-rose-600 font-bold">*</span></span>
+                          <span className="text-[10px] text-slate-400 font-normal">Untuk Asuransi</span>
+                        </label>
+                        <div className="relative flex items-center">
+                          <CreditCard className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+                          <input
+                            type="text"
+                            required
+                            placeholder="Contoh: 3175082104900001"
+                            value={idCardNumber}
+                            onChange={(e) => {
+                              setIdCardNumber(e.target.value);
+                              if (fieldErrors.idCardNumber) {
+                                const copy = { ...fieldErrors };
+                                delete copy.idCardNumber;
+                                setFieldErrors(copy);
+                              }
+                              if (validationError) setValidationError(null);
+                            }}
+                            className={`w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border outline-none font-mono transition-colors ${
+                              fieldErrors.idCardNumber
+                                ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 ring-1 ring-rose-300'
+                                : 'border-slate-300 focus:border-cyan-500 bg-white'
+                            }`}
+                          />
+                        </div>
+                        {fieldErrors.idCardNumber ? (
+                          <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{fieldErrors.idCardNumber}</span>
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            Wajib untuk manifes asuransi Jasa Raharja kapal.
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Jenis Kelamin <span className="text-rose-600 font-bold">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGender('Laki-laki');
+                              if (fieldErrors.gender) {
+                                const copy = { ...fieldErrors };
+                                delete copy.gender;
+                                setFieldErrors(copy);
+                              }
+                            }}
+                            className={`py-2 px-3 rounded-xl border text-xs font-semibold text-center cursor-pointer transition-all ${
+                              gender === 'Laki-laki'
+                                ? 'border-cyan-600 bg-cyan-50 font-bold text-cyan-900 ring-1 ring-cyan-500'
+                                : 'border-slate-300 hover:border-slate-400 text-slate-600 bg-white'
+                            }`}
+                          >
+                            Laki-laki
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGender('Perempuan');
+                              if (fieldErrors.gender) {
+                                const copy = { ...fieldErrors };
+                                delete copy.gender;
+                                setFieldErrors(copy);
+                              }
+                            }}
+                            className={`py-2 px-3 rounded-xl border text-xs font-semibold text-center cursor-pointer transition-all ${
+                              gender === 'Perempuan'
+                                ? 'border-cyan-600 bg-cyan-50 font-bold text-cyan-900 ring-1 ring-cyan-500'
+                                : 'border-slate-300 hover:border-slate-400 text-slate-600 bg-white'
+                            }`}
+                          >
+                            Perempuan
+                          </button>
+                        </div>
+                        {fieldErrors.gender && (
+                          <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{fieldErrors.gender}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Email Penerima E-Tiket (Notifikasi Otomatis)
-                      </label>
-                      <div className="relative flex items-center">
-                        <Mail className="w-4 h-4 text-cyan-600 absolute left-3 pointer-events-none" />
-                        <input
-                          type="email"
-                          required
-                          placeholder="email@contoh.com"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (validationError) setValidationError(null);
-                          }}
-                          className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-cyan-400 bg-cyan-50/20 focus:border-cyan-600 outline-none font-medium text-slate-900"
-                        />
+                    {/* WhatsApp & Email */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Nomor WhatsApp / HP Aktif <span className="text-rose-600 font-bold">*</span>
+                        </label>
+                        <div className="relative flex items-center">
+                          <Phone className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+                          <input
+                            type="tel"
+                            required
+                            placeholder="Contoh: 081289998438"
+                            value={phone}
+                            onChange={(e) => {
+                              setPhone(e.target.value);
+                              if (fieldErrors.phone) {
+                                const copy = { ...fieldErrors };
+                                delete copy.phone;
+                                setFieldErrors(copy);
+                              }
+                              if (validationError) setValidationError(null);
+                            }}
+                            className={`w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border outline-none transition-colors ${
+                              fieldErrors.phone
+                                ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 ring-1 ring-rose-300'
+                                : 'border-slate-300 focus:border-cyan-500 bg-white'
+                            }`}
+                          />
+                        </div>
+                        {fieldErrors.phone && (
+                          <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{fieldErrors.phone}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Alamat Email Aktif <span className="text-rose-600 font-bold">*</span>
+                        </label>
+                        <div className="relative flex items-center">
+                          <Mail className="w-4 h-4 text-cyan-600 absolute left-3 pointer-events-none" />
+                          <input
+                            type="email"
+                            required
+                            placeholder="emailanda@gmail.com"
+                            value={email}
+                            onChange={(e) => {
+                              setEmail(e.target.value);
+                              if (fieldErrors.email) {
+                                const copy = { ...fieldErrors };
+                                delete copy.email;
+                                setFieldErrors(copy);
+                              }
+                              if (validationError) setValidationError(null);
+                            }}
+                            className={`w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border outline-none transition-colors ${
+                              fieldErrors.email
+                                ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 ring-1 ring-rose-300'
+                                : 'border-cyan-400 bg-cyan-50/20 focus:border-cyan-600 font-medium text-slate-900'
+                            }`}
+                          />
+                        </div>
+                        {fieldErrors.email && (
+                          <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            <span>{fieldErrors.email}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
 
+                    {/* Kota Asal / Domisili */}
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Nomor WhatsApp / HP
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                        Kota / Wilayah Domisili Asal Wisatawan <span className="text-rose-600 font-bold">*</span>
                       </label>
                       <div className="relative flex items-center">
-                        <Phone className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+                        <MapPin className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
                         <input
-                          type="tel"
+                          type="text"
                           required
-                          placeholder="0812xxxxxxxx"
-                          value={phone}
+                          placeholder="Contoh: Jakarta / Bekasi / Tangerang / Bandung / Depok"
+                          value={city}
                           onChange={(e) => {
-                            setPhone(e.target.value);
+                            setCity(e.target.value);
+                            if (fieldErrors.city) {
+                              const copy = { ...fieldErrors };
+                              delete copy.city;
+                              setFieldErrors(copy);
+                            }
                             if (validationError) setValidationError(null);
                           }}
-                          className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-cyan-500 outline-none"
+                          className={`w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border outline-none transition-colors ${
+                            fieldErrors.city
+                              ? 'border-rose-400 bg-rose-50/30 focus:border-rose-500 ring-1 ring-rose-300'
+                              : 'border-slate-300 focus:border-cyan-500 bg-white'
+                          }`}
                         />
                       </div>
+                      {fieldErrors.city && (
+                        <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          <span>{fieldErrors.city}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Catatan Khusus */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Catatan Tambahan / Permintaan Khusus</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Opsional</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Membawa lansia, minta sepeda ontel anak, atau homestay dekat sunrise"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:border-cyan-500 outline-none bg-white"
+                      />
                     </div>
                   </div>
 
                   {/* 4. Pilihan Metode Bayar di Awal */}
                   <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
                     <span className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                      4. Pilih Metode Pembayaran
+                      4. Pilih Metode Pembayaran Resmi
                     </span>
                     <div className="grid grid-cols-2 gap-2.5">
                       <button
@@ -465,13 +742,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   </div>
                 </div>
 
-                {/* Right Column: Ringkasan Biaya & CTA (5 Cols) */}
+                {/* Right Column: Ringkasan Biaya, Checklist Biodata & CTA (5 Cols) */}
                 <div className="md:col-span-5 flex flex-col justify-between space-y-4">
                   <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5">
                     <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wide pb-2 border-b border-slate-100 flex items-center justify-between">
-                      <span>Ringkasan Biaya</span>
+                      <span>Ringkasan Pesanan & Biodata</span>
                       <span className="text-[10px] text-cyan-700 font-bold bg-cyan-50 px-2 py-0.5 rounded-full">
-                        Resmi
+                        Tahap 1
                       </span>
                     </h4>
 
@@ -492,13 +769,65 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         <span className="text-slate-500">Tanggal berangkat:</span>
                         <strong className="text-slate-800">{departureDate}</strong>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Tujuan E-Tiket:</span>
-                        <strong className="text-cyan-800 underline truncate max-w-[150px]">{email}</strong>
+                    </div>
+
+                    {/* Checklist Kelengkapan Biodata */}
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
+                      <div className="flex items-center justify-between font-bold text-slate-700 pb-1 border-b border-slate-200">
+                        <span>Status Biodata Manifes:</span>
+                        {fullName && idCardNumber && gender && phone && email && city ? (
+                          <span className="text-emerald-700 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Lengkap</span>
+                          </span>
+                        ) : (
+                          <span className="text-amber-700 flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Wajib Dilengkapi</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-1 pt-0.5 text-slate-600">
+                        <div className="flex justify-between items-center">
+                          <span>Nama:</span>
+                          <strong className="truncate max-w-[140px] text-slate-800">
+                            {fullName || <span className="text-rose-500 font-normal italic">Belum diisi *</span>}
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>NIK / KTP:</span>
+                          <strong className="font-mono text-slate-800">
+                            {idCardNumber || <span className="text-rose-500 font-normal italic">Belum diisi *</span>}
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Jenis Kelamin:</span>
+                          <strong className="text-slate-800">
+                            {gender || <span className="text-rose-500 font-normal italic">Belum dipilih *</span>}
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>WhatsApp:</span>
+                          <strong className="text-slate-800">
+                            {phone || <span className="text-rose-500 font-normal italic">Belum diisi *</span>}
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Email:</span>
+                          <strong className="truncate max-w-[140px] text-slate-800">
+                            {email || <span className="text-rose-500 font-normal italic">Belum diisi *</span>}
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Kota Asal:</span>
+                          <strong className="truncate max-w-[140px] text-slate-800">
+                            {city || <span className="text-rose-500 font-normal italic">Belum diisi *</span>}
+                          </strong>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex justify-between items-baseline">
+                    <div className="pt-2 border-t border-slate-100 flex justify-between items-baseline">
                       <span className="text-xs font-bold text-slate-700">Total Tagihan:</span>
                       <span className="text-xl font-black tracking-tight text-cyan-800 tabular-nums">
                         {formatRupiah(totalPrice)}
@@ -506,30 +835,30 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Auto Email Notice */}
-                  <div className="p-3 bg-emerald-50 border border-emerald-200/80 rounded-2xl flex items-start gap-2.5 text-xs text-emerald-950">
-                    <Mail className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  {/* Mandatory Payment Warning Box */}
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-2.5 text-xs text-amber-950">
+                    <Lock className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold">Notifikasi Email Otomatis</p>
-                      <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
-                        E-tiket barcode resmi akan langsung dikirim ke <strong className="underline">{email}</strong> segera setelah pembayaran dikonfirmasi.
+                      <p className="font-bold">Langkah Pembayaran Wajib</p>
+                      <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+                        Setelah melengkapi biodata di atas, Anda wajib menyelesaikan pembayaran dan melampirkan bukti transfer agar E-Tiket resmi dengan Barcode boarding diterbitkan.
                       </p>
                     </div>
                   </div>
 
                   {/* Action CTA */}
-                  <div className="space-y-2 pt-2">
+                  <div className="space-y-2 pt-1">
                     <button
                       type="submit"
                       className="w-full py-3.5 px-4 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span>Lanjut ke Pembayaran {paymentMethod === 'qris' ? 'QRIS' : 'VA'}</span>
+                      <span>Lanjut ke Pembayaran Wajib ({paymentMethod === 'qris' ? 'QRIS' : 'VA'})</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
 
                     <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Garansi pemesanan resmi & asuransi penyeberangan</span>
+                      <span>Garansi pemesanan resmi & asuransi penyeberangan Jasa Raharja</span>
                     </div>
                   </div>
                 </div>
@@ -764,12 +1093,37 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Card 2: Upload Bukti Transaksi */}
-                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                  {/* Card 2: Upload Bukti Transaksi (WAJIB) */}
+                  <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                    {!receipt ? (
+                      <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-950 flex items-start gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold">Langkah Pembayaran Wajib</p>
+                          <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                            Silakan lakukan transfer atau scan QRIS, lalu unggah foto / tangkapan layar bukti transfer yang sah di bawah ini agar tombol penerbitan E-Tiket aktif.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-xs text-emerald-950 flex items-center gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div>
+                          <p className="font-bold">Bukti Pembayaran Terlampir</p>
+                          <p className="text-[11px] text-emerald-800 mt-0.5">
+                            Bukti transaksi siap diproses untuk penerbitan E-Tiket resmi.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     <ReceiptUploadZone
                       receipt={receipt}
-                      onReceiptChange={setReceipt}
-                      required={false}
+                      onReceiptChange={(r) => {
+                        setReceipt(r);
+                        if (validationError) setValidationError(null);
+                      }}
+                      required={true}
                     />
                   </div>
 
@@ -778,11 +1132,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <button
                       type="button"
                       onClick={handleFinalizeBooking}
-                      disabled={isProcessing}
-                      className={`w-full py-3.5 px-4 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
+                      disabled={!receipt || isProcessing}
+                      className={`w-full py-3.5 px-4 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                         receipt
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
-                          : 'bg-cyan-700 hover:bg-cyan-800 text-white shadow-cyan-700/20'
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25 ring-2 ring-emerald-500/40'
+                          : 'bg-slate-200 text-slate-500 border border-slate-300 shadow-none'
                       }`}
                     >
                       {isProcessing ? (
@@ -793,12 +1147,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                       ) : receipt ? (
                         <>
                           <FileCheck className="w-4 h-4" />
-                          <span>✓ Bukti Terlampir — Terbitkan E-Tiket</span>
+                          <span>✓ Bukti Pembayaran Sah — Terbitkan E-Tiket</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-4 h-4" />
-                          <span>Saya Sudah Bayar — Terbitkan E-Tiket</span>
+                          <Lock className="w-4 h-4 text-slate-400" />
+                          <span>Wajib Unggah Bukti Bayar untuk Terbitkan Tiket</span>
                         </>
                       )}
                     </button>

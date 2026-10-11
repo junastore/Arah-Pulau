@@ -29,6 +29,8 @@ export interface TicketOption {
   meetingPoint: string;
   scheduleTime: string;
   description: string;
+  rating?: number;
+  imageUrl?: string;
 }
 
 export interface BookingAddon {
@@ -44,6 +46,8 @@ export interface BookingCustomer {
   email: string;
   phone: string;
   idCardNumber?: string;
+  gender?: 'Laki-laki' | 'Perempuan';
+  city?: string;
   notes?: string;
 }
 

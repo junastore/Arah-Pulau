@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Search,
-  Ship,
   MailCheck,
   ShieldCheck,
   ArrowRight,
@@ -49,7 +48,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onSelectTag,
   onQuickBookTicket
 }) => {
-  const [activeTab, setActiveTab] = useState<'all' | 'speedboat' | 'homestay' | 'paket'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'paket' | 'homestay' | 'aktivitas'>('all');
   const [activeBgIndex, setActiveBgIndex] = useState<number>(0);
 
   const curatedSpots = [
@@ -92,7 +91,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-200/90 max-w-xl leading-relaxed font-normal">
-              Pesan tiket kapal penyeberangan Marina Ancol & Muara Angke, sewa homestay AC, dan jelajahi 5 destinasi ikonik. E-tiket barcode resmi langsung dikirim ke email Anda.
+              Pesan paket liburan komplit, sewa homestay AC pesisir, aktivitas sepeda ontel & snorkeling, serta jelajahi 5 destinasi ikonik Pulau Tidung.
             </p>
 
             {/* Modern Glassmorphic Search & Booking Card */}
@@ -113,17 +112,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab('speedboat');
-                    onQuickBookTicket('speedboat');
+                    setActiveTab('paket');
+                    onQuickBookTicket('paket-wisata');
                   }}
                   className={`px-3 py-1.5 font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 text-xs shrink-0 ${
-                    activeTab === 'speedboat'
+                    activeTab === 'paket'
                       ? 'bg-cyan-700 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 bg-slate-100/80'
                   }`}
                 >
-                  <Ship className="w-3.5 h-3.5 text-cyan-600" />
-                  <span>Kapal Speedboat</span>
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>Paket Komplit 2D1N</span>
                 </button>
                 <button
                   type="button"
@@ -143,16 +142,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab('paket');
-                    onQuickBookTicket('paket-wisata');
+                    setActiveTab('aktivitas');
+                    onQuickBookTicket('aktivitas');
                   }}
                   className={`px-3 py-1.5 font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap text-xs shrink-0 ${
-                    activeTab === 'paket'
+                    activeTab === 'aktivitas'
                       ? 'bg-cyan-700 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900 bg-slate-100/80'
                   }`}
                 >
-                  Paket Komplit 2D1N
+                  Sewa Sepeda & Snorkel
                 </button>
               </div>
 
@@ -231,7 +230,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               {/* Top Floating Badges */}
               <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/15 text-white flex items-center gap-1.5 shadow-md">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-[11px] font-bold">1.5 Jam via Marina Ancol</span>
+                <span className="text-[11px] font-bold">Wisata Bahari Favorit</span>
               </div>
 
               <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-lg text-slate-900 flex items-center gap-1 shadow-md text-[11px] font-bold">

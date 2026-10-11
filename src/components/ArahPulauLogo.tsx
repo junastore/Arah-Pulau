@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, RotateCcw } from 'lucide-react';
+import { subscribeToAssetChanges } from '../utils/assetManager';
 
 interface ArahPulauLogoProps {
   className?: string;
@@ -22,15 +23,21 @@ export const ArahPulauLogo: React.FC<ArahPulauLogoProps> = ({
 }) => {
   const [customLogoUrl, setCustomLogoUrl] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadLogo = () => {
     try {
       const stored = localStorage.getItem(LOGO_STORAGE_KEY);
-      if (stored) {
-        setCustomLogoUrl(stored);
-      }
+      setCustomLogoUrl(stored);
     } catch {
       // ignore localStorage errors
     }
+  };
+
+  useEffect(() => {
+    loadLogo();
+    const unsub = subscribeToAssetChanges(() => {
+      loadLogo();
+    });
+    return unsub;
   }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

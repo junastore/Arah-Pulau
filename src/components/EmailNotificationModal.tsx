@@ -352,20 +352,28 @@ export const EmailNotificationModal: React.FC<EmailNotificationModalProps> = ({
                   <strong className="text-slate-900">{booking.customer.fullName}</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[10px] block">TANGGAL</span>
+                  <span className="text-slate-400 text-[10px] block">NIK / NO. KTP</span>
+                  <strong className="text-slate-900 font-mono">{booking.customer.idCardNumber || '-'}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] block">KOTA ASAL / DOMISILI</span>
+                  <strong className="text-slate-900">{booking.customer.city || '-'}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] block">TANGGAL BERANGKAT</span>
                   <strong className="text-slate-900">{booking.departureDate}</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-[10px] block">PESERTA</span>
+                  <span className="text-slate-400 text-[10px] block">JUMLAH WISATAWAN</span>
                   <strong className="text-slate-900">{booking.passengersCount} Orang</strong>
-                </div>
-                <div className="sm:col-span-2">
-                  <span className="text-slate-400 text-[10px] block">DERMAGA KEBERANGKATAN</span>
-                  <strong className="text-slate-900">{booking.departurePort}</strong>
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block">TOTAL BIAYA</span>
                   <strong className="text-cyan-800 font-black">{formatRupiah(booking.totalPrice)}</strong>
+                </div>
+                <div className="sm:col-span-3">
+                  <span className="text-slate-400 text-[10px] block">DERMAGA KEBERANGKATAN</span>
+                  <strong className="text-slate-900">{booking.departurePort}</strong>
                 </div>
               </div>
 
