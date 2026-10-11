@@ -1,0 +1,17 @@
+[33mcommit 1d30ed058d5aeb64ce8a9e1441dc0d84f9495d25[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: junastore <bangjuna876@gmail.com>
+Date:   Sun Oct 11 16:44:01 2026 +0700
+
+    fix: update esbuild version for vite compatibility and add package-lock
+
+[33mcommit 12c2058a36f5be8a3fdfed94fdf2d4964ff90791[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: junastore <bangjuna876@gmail.com>
+Date:   Sun Oct 11 15:50:06 2026 +0700
+
+    feat: enhance booking form and dashboard UI
+    
+    - Update booking modal with mandatory biodata fields (KTP, city, gender)
+    - Implement field validation in booking flow
+    - Add administrative management modals and assets subscription
+    - Refactor destination list to support asset management integration
+    - Update email notification template to include passenger details
